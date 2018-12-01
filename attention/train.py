@@ -82,7 +82,7 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                 torch.nn.utils.clip_grad_norm(attention_model.parameters(),0.5)
             optimizer.step()
             n_batches+=1
-        cur_acc = correct/(n_batches*train_loader.batch_size)
+        cur_acc = correct.type(torch.cuda.FloatTensor)/(n_batches*train_loader.batch_size)
         print("avg_loss is",total_loss/n_batches)
         print("Accuracy of the model",cur_acc)
         losses.append(total_loss/n_batches)
