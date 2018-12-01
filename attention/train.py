@@ -1,6 +1,7 @@
 import torch
 from torch.autograd import Variable
 import tqdm
+import numpy as np
 
 def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regularization = False,C=0,clip=False):
     """
@@ -21,6 +22,8 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
  
       
         """
+    attention_model = attention_model.cuda()
+    criterion = criterion.cuda()
     losses = []
     accuracy = []
     for i in range(epochs):
@@ -33,16 +36,16 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                                 total=numIters,
                                 ascii=True)
         for batch_idx,train in qdar: #enumerate(train_loader):
- 
+
             attention_model.hidden_state = attention_model.init_hidden()
-            x,y = Variable(train[0]),Variable(train[1])
+            x,y = Variable(train[0]).cuda(),Variable(train[1]).cuda()
             y_pred,att = attention_model(x)
            
             #penalization AAT - I
             if use_regularization:
                 attT = att.transpose(1,2)
                 identity = torch.eye(att.size(1))
-                identity = Variable(identity.unsqueeze(0).expand(train_loader.batch_size,att.size(1),att.size(1)))
+                identity = Variable(identity.unsqueeze(0).expand(train_loader.batch_size,att.size(1),att.size(1))).cuda()
                 penal = attention_model.l2_matrix_norm(att@attT - identity)
            
             
