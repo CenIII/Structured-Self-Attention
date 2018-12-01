@@ -52,22 +52,22 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
             if not bool(attention_model.type) :
                 #binary classification
                 #Adding a very small value to prevent BCELoss from outputting NaN's
-                correct+=torch.eq(torch.round(y_pred.type(torch.DoubleTensor).squeeze(1)),y).data.sum()
+                correct+=torch.eq(torch.round(y_pred.type(torch.cuda.DoubleTensor).squeeze(1)),y).data.sum()
                 if use_regularization:
                     try:
-                        loss = criterion(y_pred.type(torch.DoubleTensor).squeeze(1)+1e-8,y) + C * penal/train_loader.batch_size
+                        loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1)+1e-8,y) + C * penal/train_loader.batch_size
                        
                     except RuntimeError:
                         raise Exception("BCELoss gets nan values on regularization. Either remove regularization or add very small values")
                 else:
-                    loss = criterion(y_pred.type(torch.DoubleTensor).squeeze(1),y)
+                    loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1),y)
                 
             
             else:
                 
-                correct+=torch.eq(torch.max(y_pred,1)[1],y.type(torch.LongTensor)).data.sum()
+                correct+=torch.eq(torch.max(y_pred,1)[1],y.type(torch.cuda.LongTensor)).data.sum()
                 if use_regularization:
-                    loss = criterion(y_pred,y) + (C * penal/train_loader.batch_size).type(torch.FloatTensor)
+                    loss = criterion(y_pred,y) + (C * penal/train_loader.batch_size).type(torch.cuda.FloatTensor)
                 else:
                     loss = criterion(y_pred,y)
                
