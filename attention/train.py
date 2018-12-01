@@ -1,6 +1,7 @@
 import torch
 from torch.autograd import Variable
- 
+import tqdm
+
 def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regularization = False,C=0,clip=False):
     """
         Training code
@@ -67,7 +68,7 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                 else:
                     loss = criterion(y_pred,y)
                
-            qdar.set_postfix(loss=loss.data.item())
+            qdar.set_postfix(loss=str(np.round(loss.data.item(),3)))
 
             total_loss+=loss.data
             optimizer.zero_grad()
