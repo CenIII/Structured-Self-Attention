@@ -128,4 +128,4 @@ class StructuredSelfAttention(torch.nn.Module):
  
        
         """
-        return torch.sum(torch.sum(torch.sum(m**2,1),1)**0.5).type(torch.DoubleTensor)
+        return torch.sum(torch.sum(torch.sum(m**2,1),1)**0.5).type(torch.cuda.DoubleTensor)
