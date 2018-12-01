@@ -28,9 +28,9 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
     accuracy = []
     for i in range(epochs):
         print("Running EPOCH",i+1)
-        total_loss = 0
-        n_batches = 0
-        correct = 0
+        total_loss = 0.
+        n_batches = 0.
+        correct = 0.
         numIters = len(train_loader)
         qdar = tqdm.tqdm(enumerate(train_loader),
                                 total=numIters,
@@ -82,11 +82,11 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                 torch.nn.utils.clip_grad_norm(attention_model.parameters(),0.5)
             optimizer.step()
             n_batches+=1
-           
+        cur_acc = correct/(n_batches*train_loader.batch_size)
         print("avg_loss is",total_loss/n_batches)
-        print("Accuracy of the model",correct/(n_batches*train_loader.batch_size))
+        print("Accuracy of the model",cur_acc)
         losses.append(total_loss/n_batches)
-        accuracy.append(correct/(n_batches*train_loader.batch_size))
+        accuracy.append(cur_acc)
     return losses,accuracy
  
  
