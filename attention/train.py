@@ -27,8 +27,11 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
         total_loss = 0
         n_batches = 0
         correct = 0
-       
-        for batch_idx,train in enumerate(train_loader):
+        numIters = len(train_loader)
+        qdar = tqdm.tqdm(enumerate(train_loader),
+                                total=numIters,
+                                ascii=True)
+        for batch_idx,train in qdar: #enumerate(train_loader):
  
             attention_model.hidden_state = attention_model.init_hidden()
             x,y = Variable(train[0]),Variable(train[1])
@@ -64,7 +67,8 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                 else:
                     loss = criterion(y_pred,y)
                
- 
+            qdar.set_postfix(loss=loss.data.item())
+
             total_loss+=loss.data
             optimizer.zero_grad()
             loss.backward()
