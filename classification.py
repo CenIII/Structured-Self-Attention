@@ -70,7 +70,7 @@ if classification_type =='binary':
  
  
     if params_set["use_embeddings"]:
-        embeddings = load_glove_embeddings("glove/glove.6B.50d.txt",word_to_id,50)
+        embeddings = torch.cuda.FloatTensor(np.load('./emb/word2vec.npy'))#load_glove_embeddings("glove/glove.6B.50d.txt",word_to_id,50)
     else:
         embeddings = None
     #Can use pretrained embeddings by passing in the embeddings and setting the use_pretrained_embeddings=True
