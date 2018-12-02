@@ -3,7 +3,7 @@ import torch
 import pickle
 import numpy as np 
 
-class YelpDataset(Object):
+class YelpDataset(object):
 	"""docstring for Dataset"""
 	# dataset behave differently when requesting label or unlabel data
 	POS = 1
