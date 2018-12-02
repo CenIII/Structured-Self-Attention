@@ -57,7 +57,7 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                     try:
                         #print(C * penal/train_loader.batch_size)
                         reg = C * penal/train_loader.batch_size                        
-                        loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1)+1e-8,y) #+ C * penal/train_loader.batch_size
+                        loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1),y) #+ C * penal/train_loader.batch_size
 #                        print(reg)
  #                       print(reg.eq(torch.tensor(float('nan')).type(torch.cuda.DoubleTensor)))
   #                      if not reg.eq(torch.tensor(float('nan')).type(torch.cuda.DoubleTensor)):

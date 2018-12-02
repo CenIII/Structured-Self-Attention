@@ -53,7 +53,7 @@ def visualize_attention(wts,x_test_pad,word_to_id,filename):
  
 def binary_classfication(attention_model,train_loader,epochs=5,use_regularization=True,C=1.0,clip=True):
     loss = torch.nn.BCELoss()
-    optimizer = torch.optim.RMSprop(attention_model.parameters())
+    optimizer = torch.optim.RMSprop(attention_model.parameters(),lr=0.002)
     train(attention_model,train_loader,loss,optimizer,epochs,use_regularization,C,clip)
  
 def multiclass_classification(attention_model,train_loader,epochs=5,use_regularization=True,C=1.0,clip=True):
@@ -79,7 +79,7 @@ if classification_type =='binary':
     #Can set use_regularization=True for penalization and clip=True for gradient clipping
     binary_classfication(attention_model,train_loader=train_loader,epochs=params_set["epochs"],use_regularization=params_set["use_regularization"],C=params_set["C"],clip=params_set["clip"])
     classified = True
-    torch.save(attention_model,'./selfatt.pt')
+    torch.save(attention_model.state_dict(),'./selfatt.pt')
     #wts = get_activation_wts(binary_attention_model,Variable(torch.from_numpy(x_test_pad[:]).type(torch.LongTensor)))
     #print("Attention weights for the testing data in binary classification are:",wts)
  
