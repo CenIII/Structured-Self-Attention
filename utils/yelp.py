@@ -15,13 +15,13 @@ class YelpDataset(Dataset):
 		devfile = './data/sentiment.dev'
 		with open('./emb/wordDict',"rb") as fp:
 			self.wordDict = pickle.load(fp)
-			
+		self.sos_id = self.wordDict['@@START@@']
+		self.eos_id = self.wordDict['@@END@@']
 		self.traindata,self.trainlabel = self.readData(trainfile)
 		self.devdata,self.devlabel = self.readData(devfile)
 
 		
-		self.sos_id = self.wordDict['@@START@@']
-		self.eos_id = self.wordDict['@@END@@']
+		
 
 	def load_data(self):
 		return (self.traindata+self.devdata,self.trainlabel+self.devlabel)
