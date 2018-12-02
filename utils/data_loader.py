@@ -54,10 +54,10 @@ def load_data_set(type,max_len,vocab_size,batch_size):
         n_train = len(x) - 1000
         n_valid = 1000
  
-        x_train = x[:n_train]
-        y_train = y[:n_train]
-        x_test = x[n_train:n_train+n_valid]
-        y_test = y[n_train:n_train+n_valid]
+        x_train = np.array(x[:n_train])
+        y_train = np.array(y[:n_train])
+        x_test = np.array(x[n_train:n_train+n_valid])
+        y_test = np.array(y[n_train:n_train+n_valid])
  
  
         #embeddings = load_glove_embeddings("../../GloVe/glove.6B.50d.txt",word_to_id,50)
