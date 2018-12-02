@@ -55,8 +55,13 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                 correct+=torch.eq(torch.round(y_pred.type(torch.cuda.DoubleTensor).squeeze(1)),y).data.sum()
                 if use_regularization:
                     try:
-                        loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1)+1e-8,y) + C * penal/train_loader.batch_size
-                       
+                        #print(C * penal/train_loader.batch_size)
+                        reg = C * penal/train_loader.batch_size                        
+                        loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1)+1e-8,y) #+ C * penal/train_loader.batch_size
+#                        print(reg)
+ #                       print(reg.eq(torch.tensor(float('nan')).type(torch.cuda.DoubleTensor)))
+  #                      if not reg.eq(torch.tensor(float('nan')).type(torch.cuda.DoubleTensor)):
+                        loss += reg                       
                     except RuntimeError:
                         raise Exception("BCELoss gets nan values on regularization. Either remove regularization or add very small values")
                 else:
