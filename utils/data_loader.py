@@ -2,9 +2,11 @@
 
 import torch
 import numpy as np
-from keras.datasets import imdb
+# from keras.datasets import imdb
 from keras.preprocessing.sequence import pad_sequences
 import torch.utils.data as data_utils
+
+from utils.yelp import YelpDataset
  
 def load_data_set(type,max_len,vocab_size,batch_size):
     """
@@ -23,24 +25,28 @@ def load_data_set(type,max_len,vocab_size,batch_size):
  
       
         """
-   
+
+    yelp = YelpDataset()
     INDEX_FROM=3
     if not bool(type):
         NUM_WORDS=vocab_size # only use top 1000 words
            # word index offset
  
-        train_set,test_set = imdb.load_data(num_words=NUM_WORDS, index_from=INDEX_FROM)
+
+        train_set = yelp.load_data()
+
+
         x_train,y_train = train_set[0],train_set[1]
-        x_test,y_test = test_set[0],test_set[1]
-        word_to_id = imdb.get_word_index()
-        word_to_id = {k:(v+INDEX_FROM) for k,v in word_to_id.items()}
-        word_to_id["<PAD>"] = 0
-        word_to_id["<START>"] = 1
-        word_to_id["<UNK>"] = 2
+        # x_test,y_test = test_set[0],test_set[1]
+        word_to_id = yelp.get_word_index()
+        # word_to_id = {k:(v+INDEX_FROM) for k,v in word_to_id.items()}
+        # word_to_id["<PAD>"] = 0
+        # word_to_id["<START>"] = 1
+        # word_to_id["<UNK>"] = 2
  
-        id_to_word = {value:key for key,value in word_to_id.items()}
-        x = np.concatenate([x_train, x_test])
-        y = np.concatenate([y_train, y_test])
+        # id_to_word = {value:key for key,value in word_to_id.items()}
+        x = x_train #np.concatenate([x_train, x_test])
+        y = y_train #np.concatenate([y_train, y_test])
         n_train = x.shape[0] - 1000
         n_valid = 1000
  
