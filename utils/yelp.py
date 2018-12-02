@@ -1,9 +1,9 @@
 import torch
-from torch.utils.data import Dataset, DataLoader
+# from torch.utils.data import Dataset, DataLoader
 import pickle
 import numpy as np 
 
-class YelpDataset(Dataset):
+class YelpDataset(Object):
 	"""docstring for Dataset"""
 	# dataset behave differently when requesting label or unlabel data
 	POS = 1
@@ -52,7 +52,7 @@ class YelpDataset(Dataset):
 					# i += 1
 		subread('.0',self.NEG)
 		subread('.1',self.POS)
-		return data
+		return data,label
 
 	def word2index(self, sList, sos=False):
 		resList = []
