@@ -71,7 +71,7 @@ def load_data_set(type,max_len,vocab_size,batch_size):
         train_data = data_utils.TensorDataset(torch.from_numpy(x_train_pad).type(torch.LongTensor),torch.from_numpy(y_train).type(torch.DoubleTensor))
         train_loader = data_utils.DataLoader(train_data,batch_size=batch_size,drop_last=True)
         dev_data = data_utils.TensorDataset(torch.from_numpy(x_dev_pad).type(torch.LongTensor),torch.from_numpy(y_dev).type(torch.DoubleTensor))
-        dev_loader = data_utils.DataLoader(dev_data,batch_size=1,drop_last=True)        
+        dev_loader = data_utils.DataLoader(dev_data,batch_size=batch_size,drop_last=True)        
         return train_loader,dev_loader,x_test_pad,y_test,word_to_id
        
     else:

@@ -95,7 +95,6 @@ def train(attention_model,train_loader,dev_loader,criterion,optimizer,epochs = 5
 
         correct_dev = 0
         numItersDev = len(dev_loader)
-        count = 0
         qdarDev = tqdm.tqdm(enumerate(dev_loader),
                         total=numItersDev,
                         ascii=True)
@@ -104,8 +103,7 @@ def train(attention_model,train_loader,dev_loader,criterion,optimizer,epochs = 5
             y_pred_dev,att = attention_model(x_dev)
             if not bool(attention_model.type) :
                 correct_dev+=torch.eq(torch.round(y_pred_dev.type(torch.cuda.DoubleTensor).squeeze(1)),y_dev).data.sum()
-            count += 1
-        cur_acc_dev = correct_dev.type(torch.cuda.FloatTensor)/count
+        cur_acc_dev = correct_dev.type(torch.cuda.FloatTensor)/(numItersDev*dev_loader.batch_size)
         print("Accuracy of the model on dev", cur_acc_dev)
     return losses,accuracy
  
