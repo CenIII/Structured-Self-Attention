@@ -13,12 +13,13 @@ class YelpDataset(Dataset):
 		super(YelpDataset, self).__init__()
 		trainfile = './data/sentiment.train'
 		devfile = './data/sentiment.dev'
-
+		with open('./emb/wordDict',"rb") as fp:
+			self.wordDict = pickle.load(fp)
+			
 		self.traindata,self.trainlabel = self.readData(trainfile)
 		self.devdata,self.devlabel = self.readData(devfile)
 
-		with open('./emb/wordDict',"rb") as fp:
-			self.wordDict = pickle.load(fp)
+		
 		self.sos_id = self.wordDict['@@START@@']
 		self.eos_id = self.wordDict['@@END@@']
 
