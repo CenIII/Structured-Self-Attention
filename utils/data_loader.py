@@ -47,7 +47,7 @@ def load_data_set(type,max_len,vocab_size,batch_size):
         # id_to_word = {value:key for key,value in word_to_id.items()}
         x = x_train #np.concatenate([x_train, x_test])
         y = y_train #np.concatenate([y_train, y_test])
-        n_train = x.shape[0] - 1000
+        n_train = len(x) - 1000
         n_valid = 1000
  
         x_train = x[:n_train]
