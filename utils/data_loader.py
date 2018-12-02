@@ -61,8 +61,8 @@ def load_data_set(type,max_len,vocab_size,batch_size):
  
  
         #embeddings = load_glove_embeddings("../../GloVe/glove.6B.50d.txt",word_to_id,50)
-        x_train_pad = pad_sequences(x_train,maxlen=max_len)
-        x_test_pad = pad_sequences(x_test,maxlen=max_len)
+        x_train_pad = np.array(pad_sequences(x_train,maxlen=max_len))
+        x_test_pad = np.array(pad_sequences(x_test,maxlen=max_len))
  
  
         train_data = data_utils.TensorDataset(torch.from_numpy(x_train_pad).type(torch.LongTensor),torch.from_numpy(y_train).type(torch.DoubleTensor))
