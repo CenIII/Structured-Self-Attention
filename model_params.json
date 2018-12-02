@@ -2,8 +2,8 @@
 
 	"batch_size":512,
 	"vocab_size":20000,
-	"timesteps":200,
-	"lstm_hidden_dimension":50,
+	"timesteps":25,
+	"lstm_hidden_dimension":100,
 	"d_a":100
 
 }
