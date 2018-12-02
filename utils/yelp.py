@@ -1,7 +1,6 @@
 import torch
 from torch.utils.data import Dataset, DataLoader
 import pickle
-from utils import subset, seq_collate
 import numpy as np 
 
 class YelpDataset(Dataset):
