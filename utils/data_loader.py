@@ -7,6 +7,7 @@ from keras.preprocessing.sequence import pad_sequences
 import torch.utils.data as data_utils
 
 from utils.yelp import YelpDataset
+import random
  
 def load_data_set(type,max_len,vocab_size,batch_size):
     """
