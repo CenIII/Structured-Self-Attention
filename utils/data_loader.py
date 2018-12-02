@@ -45,8 +45,11 @@ def load_data_set(type,max_len,vocab_size,batch_size):
         # word_to_id["<UNK>"] = 2
  
         # id_to_word = {value:key for key,value in word_to_id.items()}
-        x = x_train #np.concatenate([x_train, x_test])
-        y = y_train #np.concatenate([y_train, y_test])
+        c = list(zip(x_train, y_train))
+        random.shuffle(c)
+        x, y = zip(*c)
+        # x = x_train #np.concatenate([x_train, x_test])
+        # y = y_train #np.concatenate([y_train, y_test])
         n_train = len(x) - 1000
         n_valid = 1000
  
