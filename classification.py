@@ -79,7 +79,7 @@ if classification_type =='binary':
     #Can set use_regularization=True for penalization and clip=True for gradient clipping
     binary_classfication(attention_model,train_loader=train_loader,epochs=params_set["epochs"],use_regularization=params_set["use_regularization"],C=params_set["C"],clip=params_set["clip"])
     classified = True
-    torch.save(attention_model,'./')
+    torch.save(attention_model,'./selfatt.pt')
     #wts = get_activation_wts(binary_attention_model,Variable(torch.from_numpy(x_test_pad[:]).type(torch.LongTensor)))
     #print("Attention weights for the testing data in binary classification are:",wts)
  
