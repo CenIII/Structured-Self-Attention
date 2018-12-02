@@ -64,7 +64,7 @@ class YelpDataset(object):
 				word = sentence[i]
 				if word in self.wordDict:
 					indArr.append(self.wordDict[word])
-			indArr.append(self.eos_id) 
+			# indArr.append(self.eos_id) 
 			indArr = np.array(indArr)
 			resList.append(indArr)
 		return resList
