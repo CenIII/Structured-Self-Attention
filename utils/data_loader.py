@@ -37,7 +37,7 @@ def load_data_set(type,max_len,vocab_size,batch_size):
         train_set = yelp.load_data()
 
 
-        x_train,y_train = train_set[0],train_set[1]
+        x_train,y_train,x_dev,y_dev = train_set[0],train_set[1],train_set[2],train_set[3]
         # x_test,y_test = test_set[0],test_set[1]
         word_to_id = yelp.get_word_index()
         # word_to_id = {k:(v+INDEX_FROM) for k,v in word_to_id.items()}
@@ -45,7 +45,6 @@ def load_data_set(type,max_len,vocab_size,batch_size):
         # word_to_id["<START>"] = 1
         # word_to_id["<UNK>"] = 2
  
-        # id_to_word = {value:key for key,value in word_to_id.items()}
         c = list(zip(x_train, y_train))
         random.shuffle(c)
         x, y = zip(*c)
@@ -58,16 +57,21 @@ def load_data_set(type,max_len,vocab_size,batch_size):
         y_train = np.array(y[:n_train])
         x_test = np.array(x[n_train:n_train+n_valid])
         y_test = np.array(y[n_train:n_train+n_valid])
+        
+        x_dev = np.array(x_dev)
+        y_dev = np.array(y_dev)
  
  
         #embeddings = load_glove_embeddings("../../GloVe/glove.6B.50d.txt",word_to_id,50)
         x_train_pad = np.array(pad_sequences(x_train,maxlen=max_len))
-        x_test_pad = np.array(pad_sequences(x_test,maxlen=max_len))
+        x_dev_pad = np.array(pad_sequences(x_dev,maxlen=max_len))
  
  
         train_data = data_utils.TensorDataset(torch.from_numpy(x_train_pad).type(torch.LongTensor),torch.from_numpy(y_train).type(torch.DoubleTensor))
         train_loader = data_utils.DataLoader(train_data,batch_size=batch_size,drop_last=True)
-        return train_loader,x_test_pad,y_test,word_to_id
+        dev_data = data_utils.TensorDataset(torch.from_numpy(x_dev_pad).type(torch.LongTensor),torch.from_numpy(y_dev).type(torch.DoubleTensor))
+        dev_loader = data_utils.DataLoader(dev_data,batch_size=1,drop_last=True)        
+        return train_loader,dev_loader,x_test_pad,y_test,word_to_id
        
     else:
         from keras.datasets import reuters

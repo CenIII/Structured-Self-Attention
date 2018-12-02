@@ -24,7 +24,7 @@ class YelpDataset(object):
 		
 
 	def load_data(self):
-		return (self.traindata+self.devdata,self.trainlabel+self.devlabel)
+		return (self.traindata, self.trainlabel, self.devdata, self.devlabel)
 	def get_word_index(self):
 		return self.wordDict
 
