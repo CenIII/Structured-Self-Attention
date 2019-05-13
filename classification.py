@@ -81,7 +81,7 @@ if classification_type =='binary':
         embeddings = None
     #Can use pretrained embeddings by passing in the embeddings and setting the use_pretrained_embeddings=True
     attention_model = StructuredSelfAttention(batch_size=train_loader.batch_size,lstm_hid_dim=model_params['lstm_hidden_dimension'],d_a = model_params["d_a"],r=params_set["attention_hops"],vocab_size=len(word_to_id),max_len=MAXLENGTH,type=0,n_classes=1,use_pretrained_embeddings=params_set["use_embeddings"],embeddings=embeddings)
-
+    attention_model = attention_model.cuda()
     #Can set use_regularization=True for penalization and clip=True for gradient clipping
     # binary_classfication(attention_model,train_loader=train_loader,epochs=params_set["epochs"],use_regularization=params_set["use_regularization"],C=params_set["C"],clip=params_set["clip"])
     classified = True

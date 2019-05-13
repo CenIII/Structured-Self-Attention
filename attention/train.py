@@ -154,4 +154,4 @@ def get_activation_wts(attention_model,x):
     attention_model.hidden_state = attention_model.init_hidden()
     pred = attention_model(x)
     att = attention_model.getAttention(torch.max(pred,1)[1])
-    return wts
+    return att
