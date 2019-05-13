@@ -93,7 +93,7 @@ def load_data_set(type,max_len,vocab_size,batch_size):
            # word index offset
  
         # train_set,test_set = imdb.load_data(num_words=NUM_WORDS, index_from=INDEX_FROM)
-        with open('datapack.pkl','rb') as f:
+        with open('./data/datapack.pkl','rb') as f:
             datapack = pickle.load(f)
         train_set = datapack['train_set']
         test_set = datapack['test_set']
