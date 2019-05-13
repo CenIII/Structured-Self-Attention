@@ -78,7 +78,7 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
 #                         raise Exception("BCELoss gets nan values on regularization. Either remove regularization or add very small values")
                 # else:
                     # loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y)
-                loss = criterion(y_pred,y)
+                loss = criterion(y_pred,y.type(device.LongTensor))
                 
             
             else:
