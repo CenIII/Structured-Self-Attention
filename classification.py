@@ -20,7 +20,7 @@ else:
  
 classified = False
 classification_type = sys.argv[1]
- 
+
 def json_to_dict(json_set):
     for k,v in json_set.items():
         if v == 'False':
@@ -81,11 +81,11 @@ if classification_type =='binary':
         embeddings = None
     #Can use pretrained embeddings by passing in the embeddings and setting the use_pretrained_embeddings=True
     attention_model = StructuredSelfAttention(batch_size=train_loader.batch_size,lstm_hid_dim=model_params['lstm_hidden_dimension'],d_a = model_params["d_a"],r=params_set["attention_hops"],vocab_size=len(word_to_id),max_len=MAXLENGTH,type=0,n_classes=1,use_pretrained_embeddings=params_set["use_embeddings"],embeddings=embeddings)
- 
+
     #Can set use_regularization=True for penalization and clip=True for gradient clipping
-    binary_classfication(attention_model,train_loader=train_loader,epochs=params_set["epochs"],use_regularization=params_set["use_regularization"],C=params_set["C"],clip=params_set["clip"])
+    # binary_classfication(attention_model,train_loader=train_loader,epochs=params_set["epochs"],use_regularization=params_set["use_regularization"],C=params_set["C"],clip=params_set["clip"])
     classified = True
-    torch.save(attention_model.state_dict(),'./selfatt.pt')
+    # torch.save(attention_model.state_dict(),'./selfatt.pt')
     #wts = get_activation_wts(binary_attention_model,Variable(torch.from_numpy(x_test_pad[:]).type(torch.LongTensor)))
     #print("Attention weights for the testing data in binary classification are:",wts)
  
@@ -104,6 +104,7 @@ if classification_type == 'multiclass':
     classified=True
     #wts = get_activation_wts(multiclass_attention_model,Variable(torch.from_numpy(x_test_pad[:]).type(torch.LongTensor)))
     #print("Attention weights for the data in multiclass classification are:",wts)
+
 if classified:
     test_last_idx = 100
     wts = get_activation_wts(attention_model,Variable(torch.from_numpy(x_test_pad[:test_last_idx]).type(device.LongTensor)))

@@ -60,7 +60,7 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                 penal = attention_model.l2_matrix_norm(att@attT - identity)
            
             
-            if not bool(attention_model.type) :
+            if not bool(attention_model.type):
                 #binary classification
                 #Adding a very small value to prevent BCELoss from outputting NaN's
                 # correct+=torch.eq(torch.round(y_pred.type(device.DoubleTensor).squeeze(1)),y).data.sum()
@@ -152,5 +152,6 @@ def get_activation_wts(attention_model,x):
     """
     attention_model.batch_size = x.size(0)
     attention_model.hidden_state = attention_model.init_hidden()
-    _,wts = attention_model(x)
+    pred = attention_model(x)
+    att = attention_model.getAttention(torch.max(pred,1)[1])
     return wts
