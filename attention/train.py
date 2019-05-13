@@ -63,20 +63,22 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
             if not bool(attention_model.type) :
                 #binary classification
                 #Adding a very small value to prevent BCELoss from outputting NaN's
-                correct+=torch.eq(torch.round(y_pred.type(device.DoubleTensor).squeeze(1)),y).data.sum()
-                if use_regularization:
-                    try:
-                        #print(C * penal/train_loader.batch_size)
-                        reg = C * penal/train_loader.batch_size                        
-                        loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y) #+ C * penal/train_loader.batch_size
-#                        print(reg)
- #                       print(reg.eq(torch.tensor(float('nan')).type(device.DoubleTensor)))
-  #                      if not reg.eq(torch.tensor(float('nan')).type(device.DoubleTensor)):
-                        loss += reg                       
-                    except RuntimeError:
-                        raise Exception("BCELoss gets nan values on regularization. Either remove regularization or add very small values")
+                # correct+=torch.eq(torch.round(y_pred.type(device.DoubleTensor).squeeze(1)),y).data.sum()
+                correct+=torch.eq(torch.max(y_pred,1)[1],y.type(device.LongTensor)).data.sum()
+#                 if use_regularization:
+#                     try:
+#                         #print(C * penal/train_loader.batch_size)
+#                         reg = C * penal/train_loader.batch_size                        
+#                         loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y) #+ C * penal/train_loader.batch_size
+# #                        print(reg)
+#  #                       print(reg.eq(torch.tensor(float('nan')).type(device.DoubleTensor)))
+#   #                      if not reg.eq(torch.tensor(float('nan')).type(device.DoubleTensor)):
+#                         loss += reg                       
+#                     except RuntimeError:
+#                         raise Exception("BCELoss gets nan values on regularization. Either remove regularization or add very small values")
                 else:
-                    loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y)
+                    # loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y)
+                    loss = criterion(y_pred,y)
                 
             
             else:

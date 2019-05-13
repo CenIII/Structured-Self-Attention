@@ -110,10 +110,11 @@ class StructuredSelfAttention(torch.nn.Module):
         else:
             ret = (Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)),Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)))
         return ret
-       
-    
+        
     def getAttention(self,classid):
-        return torch.matmal(self.heatmaps, self.linear_final.weight.data[classid])
+        wts = self.linear_final.weight.data[classid.type(device.LongTensor)]
+        att = torch.bmm(wts.unsqueeze(1),self.heatmaps.squeeze()).squeeze() #torch.Size([512, 200])
+        return att
 
     def forward(self,x):
         embeddings = self.embeddings(x)       

@@ -57,7 +57,8 @@ def visualize_attention(wts,x_test_pad,word_to_id,filename):
     return
  
 def binary_classfication(attention_model,train_loader,epochs=5,use_regularization=True,C=1.0,clip=True):
-    loss = torch.nn.BCELoss()
+    # loss = torch.nn.BCELoss()
+    loss = torch.nn.NLLLoss()
     optimizer = torch.optim.RMSprop(attention_model.parameters(),lr=0.002)
     train(attention_model,train_loader,loss,optimizer,epochs,use_regularization,C,clip)
  
