@@ -6,7 +6,7 @@ import numpy as np
 from utils.sequence import pad_sequences
 import torch.utils.data as data_utils
 
-from utils.yelp import YelpDataset
+#from utils.yelp import YelpDataset
 import random
 import pickle
  
@@ -28,7 +28,7 @@ def load_data_set(type,max_len,vocab_size,batch_size):
       
         """
 
-    yelp = YelpDataset()
+ #   yelp = YelpDataset()
     INDEX_FROM=3
     if not bool(type):
         NUM_WORDS=vocab_size # only use top 1000 words

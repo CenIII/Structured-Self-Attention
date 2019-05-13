@@ -56,9 +56,9 @@ class StructuredSelfAttention(torch.nn.Module):
         self.r = r
         self.type = type
 
-        self.conv1 = nn.Conv2d(1, 100, (3, 1), padding=(1,0))
+        self.conv1 = nn.Conv2d(1, 20, (3, 1), padding=(1,0))
         self.relu = nn.ReLU()
-        self.conv2 = nn.Conv2d(100, 2, (3, 100), padding=(1,0))
+        self.conv2 = nn.Conv2d(20, 2, (3, 100), padding=(1,0))
 
                  
     def _load_embeddings(self,use_pretrained_embeddings,embeddings,vocab_size,emb_dim):
@@ -125,7 +125,7 @@ class StructuredSelfAttention(torch.nn.Module):
         # conv2
         self.heatmaps = self.conv2(feats) #torch.Size([512, 2, 200, 1])
         # GAP
-        logits = torch.mean(self.heatmaps,dim=2)
+        logits = torch.mean(self.heatmaps,dim=2).squeeze()
         # linear # softmax
         pred = F.log_softmax(self.linear_final(logits))
 
