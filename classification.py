@@ -7,11 +7,16 @@ from visualization.attention_visualization import createHTML
 import torch
 import numpy as np
 from torch.autograd import Variable
-from keras.preprocessing.sequence import pad_sequences
+# from keras.preprocessing.sequence import pad_sequences
 import torch.nn.functional as F
 import torch.utils.data as data_utils
 import os,sys
 import json
+
+if torch.cuda.is_available():
+    import torch.cuda as device
+else:
+    import torch as device
  
 classified = False
 classification_type = sys.argv[1]
@@ -70,7 +75,7 @@ if classification_type =='binary':
  
  
     if params_set["use_embeddings"]:
-        embeddings = torch.cuda.FloatTensor(np.load('./emb/word2vec.npy'))#load_glove_embeddings("glove/glove.6B.50d.txt",word_to_id,50)
+        embeddings = device.FloatTensor(np.load('./emb/word2vec.npy'))#load_glove_embeddings("glove/glove.6B.50d.txt",word_to_id,50)
     else:
         embeddings = None
     #Can use pretrained embeddings by passing in the embeddings and setting the use_pretrained_embeddings=True
@@ -100,6 +105,6 @@ if classification_type == 'multiclass':
     #print("Attention weights for the data in multiclass classification are:",wts)
 if classified:
     test_last_idx = 100
-    wts = get_activation_wts(attention_model,Variable(torch.from_numpy(x_test_pad[:test_last_idx]).type(torch.cuda.LongTensor)))
+    wts = get_activation_wts(attention_model,Variable(torch.from_numpy(x_test_pad[:test_last_idx]).type(device.LongTensor)))
     print(wts.size())
     visualize_attention(wts,x_test_pad[:test_last_idx],word_to_id,filename='attention.html')

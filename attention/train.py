@@ -3,6 +3,11 @@ from torch.autograd import Variable
 import tqdm
 import numpy as np
 
+if torch.cuda.is_available():
+    import torch.cuda as device
+else:
+    import torch as device
+
 def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regularization = False,C=0,clip=False):
     """
         Training code
@@ -22,8 +27,9 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
  
       
         """
-    attention_model = attention_model.cuda()
-    criterion = criterion.cuda()
+    if torch.cuda.is_available():
+        attention_model = attention_model.cuda()
+        criterion = criterion.cuda()
     losses = []
     accuracy = []
     for i in range(epochs):
@@ -38,41 +44,46 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
         for batch_idx,train in qdar: #enumerate(train_loader):
 
             attention_model.hidden_state = attention_model.init_hidden()
-            x,y = Variable(train[0]).cuda(),Variable(train[1]).cuda()
-            y_pred,att = attention_model(x)
-           
+
+            x,y = Variable(train[0]),Variable(train[1])
+            if torch.cuda.is_available():
+                x,y = x.cuda(), y.cuda()
+            y_pred = attention_model(x)
+            att = attention_model.getAttention(y)
             #penalization AAT - I
             if use_regularization:
                 attT = att.transpose(1,2)
                 identity = torch.eye(att.size(1))
-                identity = Variable(identity.unsqueeze(0).expand(train_loader.batch_size,att.size(1),att.size(1))).cuda()
+                identity = Variable(identity.unsqueeze(0).expand(train_loader.batch_size,att.size(1),att.size(1)))
+                if torch.cuda.is_available():
+                    identity = identity.cuda()
                 penal = attention_model.l2_matrix_norm(att@attT - identity)
            
             
             if not bool(attention_model.type) :
                 #binary classification
                 #Adding a very small value to prevent BCELoss from outputting NaN's
-                correct+=torch.eq(torch.round(y_pred.type(torch.cuda.DoubleTensor).squeeze(1)),y).data.sum()
+                correct+=torch.eq(torch.round(y_pred.type(device.DoubleTensor).squeeze(1)),y).data.sum()
                 if use_regularization:
                     try:
                         #print(C * penal/train_loader.batch_size)
                         reg = C * penal/train_loader.batch_size                        
-                        loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1),y) #+ C * penal/train_loader.batch_size
+                        loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y) #+ C * penal/train_loader.batch_size
 #                        print(reg)
- #                       print(reg.eq(torch.tensor(float('nan')).type(torch.cuda.DoubleTensor)))
-  #                      if not reg.eq(torch.tensor(float('nan')).type(torch.cuda.DoubleTensor)):
+ #                       print(reg.eq(torch.tensor(float('nan')).type(device.DoubleTensor)))
+  #                      if not reg.eq(torch.tensor(float('nan')).type(device.DoubleTensor)):
                         loss += reg                       
                     except RuntimeError:
                         raise Exception("BCELoss gets nan values on regularization. Either remove regularization or add very small values")
                 else:
-                    loss = criterion(y_pred.type(torch.cuda.DoubleTensor).squeeze(1),y)
+                    loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y)
                 
             
             else:
                 
-                correct+=torch.eq(torch.max(y_pred,1)[1],y.type(torch.cuda.LongTensor)).data.sum()
+                correct+=torch.eq(torch.max(y_pred,1)[1],y.type(device.LongTensor)).data.sum()
                 if use_regularization:
-                    loss = criterion(y_pred,y) + (C * penal/train_loader.batch_size).type(torch.cuda.FloatTensor)
+                    loss = criterion(y_pred,y) + (C * penal/train_loader.batch_size).type(device.FloatTensor)
                 else:
                     loss = criterion(y_pred,y)
                
@@ -87,7 +98,7 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
                 torch.nn.utils.clip_grad_norm(attention_model.parameters(),0.5)
             optimizer.step()
             n_batches+=1
-        cur_acc = correct.type(torch.cuda.FloatTensor)/(n_batches*train_loader.batch_size)
+        cur_acc = correct.type(device.FloatTensor)/(n_batches*train_loader.batch_size)
         print("avg_loss is",total_loss/n_batches)
         print("Accuracy of the model",cur_acc)
         losses.append(total_loss/n_batches)

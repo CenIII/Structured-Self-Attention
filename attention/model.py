@@ -1,9 +1,15 @@
-import torch,keras
+import torch
 import numpy as np
 from torch.autograd import Variable
 import torch.nn.functional as F
 import torch.utils.data as data_utils
- 
+import torch.nn as nn
+
+if torch.cuda.is_available():
+    import torch.cuda as device
+else:
+    import torch as device
+
 class StructuredSelfAttention(torch.nn.Module):
     """
     The class is an implementation of the paper A Structured Self-Attentive Sentence Embedding including regularization
@@ -37,18 +43,23 @@ class StructuredSelfAttention(torch.nn.Module):
        
         self.embeddings,emb_dim = self._load_embeddings(use_pretrained_embeddings,embeddings,vocab_size,emb_dim)
         self.lstm = torch.nn.LSTM(emb_dim,lstm_hid_dim,1,batch_first=True)
-        self.linear_first = torch.nn.Linear(lstm_hid_dim,d_a)
-        self.linear_first.bias.data.fill_(0)
-        self.linear_second = torch.nn.Linear(d_a,r)
-        self.linear_second.bias.data.fill_(0)
+        # self.linear_first = torch.nn.Linear(lstm_hid_dim,d_a)
+        # self.linear_first.bias.data.fill_(0)
+        # self.linear_second = torch.nn.Linear(d_a,r)
+        # self.linear_second.bias.data.fill_(0)
         self.n_classes = n_classes
-        self.linear_final = torch.nn.Linear(lstm_hid_dim,self.n_classes)
+        self.linear_final = torch.nn.Linear(2,2)#(lstm_hid_dim,self.n_classes)
         self.batch_size = batch_size       
         self.max_len = max_len
         self.lstm_hid_dim = lstm_hid_dim
         self.hidden_state = self.init_hidden()
         self.r = r
         self.type = type
+
+        self.conv1 = nn.Conv2d(1, 100, (3, 1), padding=(1,0))
+        self.relu = nn.ReLU()
+        self.conv2 = nn.Conv2d(100, 2, (3, 100), padding=(1,0))
+
                  
     def _load_embeddings(self,use_pretrained_embeddings,embeddings,vocab_size,emb_dim):
         """Load the embeddings based on flag"""
@@ -94,24 +105,45 @@ class StructuredSelfAttention(torch.nn.Module):
        
         
     def init_hidden(self):
-        return (Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)).cuda(),Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)).cuda())
+        if torch.cuda.is_available():
+            ret = (Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)).cuda(),Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)).cuda())
+        else:
+            ret = (Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)),Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)))
+        return ret
        
-        
+    
+    def getAttention(self,classid):
+        return torch.matmal(self.heatmaps, self.linear_final.weight.data[classid])
+
     def forward(self,x):
         embeddings = self.embeddings(x)       
-        outputs, hidden_state = self.lstm(embeddings.view(self.batch_size,self.max_len,-1),self.init_hidden())       
-        x = F.tanh(self.linear_first(outputs))       
-        x = self.linear_second(x)       
-        x = self.softmax(x,1)       
-        attention = x.transpose(1,2)       
-        sentence_embeddings = attention@outputs       
-        avg_sentence_embeddings = torch.sum(sentence_embeddings,1)/self.r
-        if not bool(self.type):
-            output = F.sigmoid(self.linear_final(avg_sentence_embeddings))
+        outputs, hidden_state = self.lstm(embeddings.view(self.batch_size,self.max_len,-1),self.init_hidden())  
+
+        # add conv here
+        # conv1
+        feats = self.relu(self.conv1(outputs.unsqueeze(1)))
+        # conv2
+        self.heatmaps = self.conv2(feats) #torch.Size([512, 2, 200, 1])
+        # GAP
+        logits = torch.mean(self.heatmaps,dim=2)
+        # linear # softmax
+        pred = F.log_softmax(self.linear_final(logits))
+
+        # attention is obtained from output of conv2
+
+
+        # x = F.tanh(self.linear_first(outputs))       
+        # x = self.linear_second(x)       
+        # x = self.softmax(x,1)       
+        # attention = x.transpose(1,2)       
+        # sentence_embeddings = attention@outputs       
+        # avg_sentence_embeddings = torch.sum(sentence_embeddings,1)/self.r
+        # if not bool(self.type):
+        #     output = F.sigmoid(self.linear_final(logits))#(avg_sentence_embeddings))
            
-            return output,attention
-        else:
-            return F.log_softmax(self.linear_final(avg_sentence_embeddings)),attention
+        #     return output,attention
+        # else:
+        return pred#,attention
        
 	   
 	#Regularization
@@ -127,4 +159,4 @@ class StructuredSelfAttention(torch.nn.Module):
  
        
         """
-        return torch.sum(torch.sum(torch.sum(m**2,1),1)**0.5).type(torch.cuda.DoubleTensor)
+        return torch.sum(torch.sum(torch.sum(m**2,1),1)**0.5).type(device.DoubleTensor)

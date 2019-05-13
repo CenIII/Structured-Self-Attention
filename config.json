@@ -1,7 +1,7 @@
 {
 	
 	"epochs":2,
-	"use_regularization":"True",
+	"use_regularization":"False",
 	"C":0.03,
 	"clip":"True",
 	"use_embeddings":"False",
