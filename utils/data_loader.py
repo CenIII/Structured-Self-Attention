@@ -9,11 +9,6 @@ import torch.utils.data as data_utils
 #from utils.yelp import YelpDataset
 import random
 import pickle
-
-if torch.cuda.is_available():
-    import torch.cuda as device
-else:
-    import torch as device
  
 def load_data_set(type,max_len,vocab_size,batch_size):
     """
@@ -134,5 +129,5 @@ def load_data_set(type,max_len,vocab_size,batch_size):
  
         train_data = data_utils.TensorDataset(torch.from_numpy(x_train_pad).type(torch.LongTensor),torch.from_numpy(y_train).type(torch.DoubleTensor))
         train_loader = data_utils.DataLoader(train_data,batch_size=batch_size,drop_last=True)  
-        return train_loader,torch.from_numpy(x_test_pad).type(device.LongTensor),torch.from_numpy(y_test).type(device.DoubleTensor),word_to_id
+        return train_loader,x_test_pad,y_test,word_to_id
         #return train_loader,train_set,test_set,x_test_pad,word_to_id
