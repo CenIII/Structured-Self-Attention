@@ -60,6 +60,8 @@ class StructuredSelfAttention(torch.nn.Module):
         self.relu = nn.ReLU()
         self.conv2 = nn.Conv2d(20, 2, (3, 100), padding=(1,0))
 
+        # before classification, two branch nets erase each other. 
+
                  
     def _load_embeddings(self,use_pretrained_embeddings,embeddings,vocab_size,emb_dim):
         """Load the embeddings based on flag"""
@@ -110,7 +112,7 @@ class StructuredSelfAttention(torch.nn.Module):
         else:
             ret = (Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)),Variable(torch.zeros(1,self.batch_size,self.lstm_hid_dim)))
         return ret
-        
+
     def getAttention(self,classid):
         wts = self.linear_final.weight.data[classid.type(device.LongTensor)]
         att = torch.bmm(wts.unsqueeze(1),self.heatmaps.squeeze()).squeeze() #torch.Size([512, 200])
