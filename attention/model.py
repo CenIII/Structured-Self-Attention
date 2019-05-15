@@ -56,9 +56,9 @@ class StructuredSelfAttention(torch.nn.Module):
         self.r = r
         self.type = type
 
-        self.conv1 = nn.Conv2d(1, 20, (3, 1), padding=(1,0))
+        self.conv1 = nn.Conv2d(1, 2, (1, 1))#, padding=(1,0))
         self.relu = nn.ReLU()
-        self.conv2 = nn.Conv2d(20, 2, (3, 100), padding=(1,0))
+        self.conv2 = nn.Conv2d(2, 2, (1, 100))#, padding=(1,0))
 
         # before classification, two branch nets erase each other. 
 

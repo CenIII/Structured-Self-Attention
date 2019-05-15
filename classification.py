@@ -12,6 +12,7 @@ import torch.nn.functional as F
 import torch.utils.data as data_utils
 import os,sys
 import json
+import pdb
 
 if torch.cuda.is_available():
     import torch.cuda as device
@@ -45,8 +46,9 @@ print("Using settings:",params_set)
 print("Using model settings",model_params)
  
 def visualize_attention(wts,x_test_pad,word_to_id,filename):
-    wts_add = torch.sum(wts,1)
-    wts_add_np = wts_add.cpu().data.numpy()
+    #wts_add = torch.sum(wts,1)
+    wts = F.softmax(wts,dim=1)
+    wts_add_np = wts.cpu().data.numpy()
     wts_add_list = wts_add_np.tolist()
     id_to_word = {v:k for k,v in word_to_id.items()}
     text= []
