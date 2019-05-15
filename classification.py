@@ -58,11 +58,11 @@ def visualize_attention(wts,x_test_pad,word_to_id,filename):
     print("Attention visualization created for {} samples".format(len(x_test_pad)))
     return
  
-def binary_classfication(attention_model,train_loader,epochs=5,use_regularization=True,C=1.0,clip=True):
+def binary_classfication(attention_model,train_loader,x_test, y_test, epochs=5,use_regularization=True,C=1.0,clip=True):
     # loss = torch.nn.BCELoss()
     loss = torch.nn.NLLLoss()
     optimizer = torch.optim.RMSprop(attention_model.parameters(),lr=0.002)
-    train(attention_model,train_loader,loss,optimizer,epochs,use_regularization,C,clip)
+    train(attention_model,train_loader,loss,optimizer,x_test, y_test, epochs,use_regularization,C,clip)
  
 def multiclass_classification(attention_model,train_loader,epochs=5,use_regularization=True,C=1.0,clip=True):
     loss = torch.nn.NLLLoss()
@@ -84,7 +84,7 @@ if classification_type =='binary':
     #Can use pretrained embeddings by passing in the embeddings and setting the use_pretrained_embeddings=True
     attention_model = StructuredSelfAttention(batch_size=train_loader.batch_size,lstm_hid_dim=model_params['lstm_hidden_dimension'],d_a = model_params["d_a"],r=params_set["attention_hops"],vocab_size=len(word_to_id),max_len=MAXLENGTH,type=0,n_classes=1,use_pretrained_embeddings=params_set["use_embeddings"],embeddings=embeddings)
     #Can set use_regularization=True for penalization and clip=True for gradient clipping
-    binary_classfication(attention_model,train_loader=train_loader,epochs=params_set["epochs"],use_regularization=params_set["use_regularization"],C=params_set["C"],clip=params_set["clip"])
+    binary_classfication(attention_model,train_loader=train_loader,x_test=x_test_pad,y_test=y_test,epochs=params_set["epochs"],use_regularization=params_set["use_regularization"],C=params_set["C"],clip=params_set["clip"])
     classified = True
     torch.save(attention_model.state_dict(),'./selfatt.pt')
     #wts = get_activation_wts(binary_attention_model,Variable(torch.from_numpy(x_test_pad[:]).type(torch.LongTensor)))

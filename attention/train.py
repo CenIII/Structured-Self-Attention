@@ -8,7 +8,7 @@ if torch.cuda.is_available():
 else:
     import torch as device
 
-def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regularization = False,C=0,clip=False):
+def train(attention_model,train_loader,criterion,optimizer,x_test, y_test, epochs = 5,use_regularization = False,C=0,clip=False):
     """
         Training code
  
@@ -105,6 +105,9 @@ def train(attention_model,train_loader,criterion,optimizer,epochs = 5,use_regula
         print("Accuracy of the model",cur_acc)
         losses.append(total_loss/n_batches)
         accuracy.append(cur_acc)
+        # evaluate
+        eval_acc = evaluate(attention_model,x_test,y_test)
+        print("test accuracy is "+str(eval_acc))
     return losses,accuracy
  
  
@@ -127,13 +130,13 @@ def evaluate(attention_model,x_test,y_test):
     attention_model.hidden_state = attention_model.init_hidden()
     x_test_var = Variable(torch.from_numpy(x_test).type(torch.LongTensor))
     y_test_pred,_ = attention_model(x_test_var)
-    if bool(attention_model.type):
-        y_preds = torch.max(y_test_pred,1)[1]
-        y_test_var = Variable(torch.from_numpy(y_test).type(torch.LongTensor))
+    # if bool(attention_model.type):
+    #     y_preds = torch.max(y_test_pred,1)[1]
+    #     y_test_var = Variable(torch.from_numpy(y_test).type(torch.LongTensor))
        
-    else:
-        y_preds = torch.round(y_test_pred.type(torch.DoubleTensor).squeeze(1))
-        y_test_var = Variable(torch.from_numpy(y_test).type(torch.DoubleTensor))
+    # else:
+    y_preds = torch.round(y_test_pred.type(torch.DoubleTensor).squeeze(1))
+    y_test_var = Variable(torch.from_numpy(y_test).type(torch.DoubleTensor))
        
     return torch.eq(y_preds,y_test_var).data.sum()/x_test_var.size(0)
  
