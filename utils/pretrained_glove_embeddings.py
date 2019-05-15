@@ -7,7 +7,7 @@ vocab,word2idx = None,{}
  
 def load_glove_embeddings(path, word2idx, embedding_dim):
     """Loading the glove embeddings"""
-    with open(path) as f:
+    with open(path,'r',encoding='latin1') as f:
         embeddings = np.zeros((len(word2idx), embedding_dim))
         for line in f.readlines():
             values = line.split()
