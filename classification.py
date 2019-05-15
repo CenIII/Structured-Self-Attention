@@ -113,4 +113,4 @@ if classified:
     test_last_idx = idxlist[:100] #100
     wts = get_activation_wts(attention_model,Variable(torch.from_numpy(x_test_pad[test_last_idx]).type(device.LongTensor)))
     print(wts.size())
-    visualize_attention(wts,x_test_pad[:test_last_idx],word_to_id,filename='attention.html')
+    visualize_attention(wts,x_test_pad[test_last_idx],word_to_id,filename='attention.html')
