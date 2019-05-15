@@ -109,7 +109,7 @@ if classification_type == 'multiclass':
 
 if classified:
     idxlist = list(range(len(x_test_pad)))
-    random.suffle(idxlist)
+    random.shuffle(idxlist)
     test_last_idx = idxlist[:100] #100
     wts = get_activation_wts(attention_model,Variable(torch.from_numpy(x_test_pad[test_last_idx]).type(device.LongTensor)))
     print(wts.size())
