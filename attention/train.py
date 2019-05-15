@@ -106,7 +106,8 @@ def train(attention_model,train_loader,criterion,optimizer,x_test, y_test, epoch
         losses.append(total_loss/n_batches)
         accuracy.append(cur_acc)
         # evaluate
-        eval_acc = evaluate(attention_model,x_test,y_test)
+        with torch.no_grad():
+            eval_acc = evaluate(attention_model,x_test,y_test)
         print("test accuracy is "+str(eval_acc))
     return losses,accuracy
  
@@ -138,7 +139,7 @@ def evaluate(attention_model,x_test,y_test):
     # y_preds = torch.round(y_test_pred.type(device.DoubleTensor).squeeze(1))
     # y_test_var = Variable(torch.from_numpy(y_test).type(device.DoubleTensor))
        
-    return torch.eq(y_preds,y_test_var).data.sum()/x_test_var.size(0)
+    return torch.eq(y_preds,y_test_var).data.sum().type(device.DoubleTensor)/x_test_var.size(0)
  
 def get_activation_wts(attention_model,x):
     """
