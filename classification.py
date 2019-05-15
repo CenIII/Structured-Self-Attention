@@ -108,7 +108,7 @@ if classification_type == 'multiclass':
     #print("Attention weights for the data in multiclass classification are:",wts)
 
 if classified:
-    idxlist = list(len(x_test_pad))
+    idxlist = list(range(len(x_test_pad)))
     random.suffle(idxlist)
     test_last_idx = idxlist[:100] #100
     wts = get_activation_wts(attention_model,Variable(torch.from_numpy(x_test_pad[test_last_idx]).type(device.LongTensor)))
