@@ -127,6 +127,9 @@ def evaluate(attention_model,x_test,y_test):
       
     """
    
+    bsize_bak = attention_model.batch_size
+    hid_bak = attention_model.hidden_state
+
     attention_model.batch_size = x_test.shape[0]
     attention_model.hidden_state = attention_model.init_hidden()
     x_test_var = Variable(torch.from_numpy(x_test).type(device.LongTensor))
@@ -134,7 +137,9 @@ def evaluate(attention_model,x_test,y_test):
     # if bool(attention_model.type):
     y_preds = torch.max(y_test_pred,1)[1]
     y_test_var = Variable(torch.from_numpy(y_test).type(device.LongTensor))
-       
+    
+    attention_model.batch_size = bsize_bak
+    attention_model.hidden_state = hid_bak
     # else:
     # y_preds = torch.round(y_test_pred.type(device.DoubleTensor).squeeze(1))
     # y_test_var = Variable(torch.from_numpy(y_test).type(device.DoubleTensor))
