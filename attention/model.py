@@ -43,12 +43,7 @@ class StructuredSelfAttention(torch.nn.Module):
        
         self.embeddings,emb_dim = self._load_embeddings(use_pretrained_embeddings,embeddings,vocab_size,emb_dim)
         self.lstm = torch.nn.LSTM(emb_dim,lstm_hid_dim,1,batch_first=True)
-        # self.linear_first = torch.nn.Linear(lstm_hid_dim,d_a)
-        # self.linear_first.bias.data.fill_(0)
-        # self.linear_second = torch.nn.Linear(d_a,r)
-        # self.linear_second.bias.data.fill_(0)
         self.n_classes = n_classes
-        self.linear_final = torch.nn.Linear(2,2)#(lstm_hid_dim,self.n_classes)
         self.batch_size = batch_size       
         self.max_len = max_len
         self.lstm_hid_dim = lstm_hid_dim
@@ -56,9 +51,10 @@ class StructuredSelfAttention(torch.nn.Module):
         self.r = r
         self.type = type
 
-        self.conv1 = nn.Conv2d(1, 2, (1, 1))#, padding=(1,0))
-        self.relu = nn.ReLU()
-        self.conv2 = nn.Conv2d(1, 2, (1, 100))#, padding=(1,0))
+        self.numBrch = 2
+        self.conv = nn.ModuleList([nn.Conv2d(1, 2, (1, 100)),nn.Conv2d(1, 2, (1, 100))])
+        self.linear = nn.ModuleList([torch.nn.Linear(2,2),torch.nn.Linear(2,2)])
+
 
         # before classification, two branch nets erase each other. 
 
@@ -116,35 +112,40 @@ class StructuredSelfAttention(torch.nn.Module):
     def getAttention(self,classid):
         # wts = self.linear_final.weight.data[classid.type(device.LongTensor)]
         # att = torch.bmm(wts.unsqueeze(1),self.heatmaps.squeeze()).squeeze() #torch.Size([512, 200])
-        att = torch.gather(self.heatmaps,1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps.shape[2])).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
+        att = torch.gather(self.heatmaps[0],1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps[0].shape[2])).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
+        att += torch.gather(self.heatmaps[1],1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps[1].shape[2])).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
+        att = att/2
         return att
 
-    def forward(self,x):
+    def maskHeatmaps(hm, hm_sub, label): # hm [512,2,200]
+        label_rep = label.unsqueeze(1).unsqueeze(1).repeat(1,1,hm.shape[2])
+        heatmap = torch.gather(hm,1,label_rep).squeeze() #[512,200]
+        att_sub = 1 - F.softmax(torch.gather(hm_sub,1,label_rep).squeeze(),dim=1) #[512,200]
+        heatmap_msked = heatmap*att_sub
+        ret = Variable(torch.zeros_like(hm)).cuda()
+        ret.scatter_(1, label_rep, heatmap_msked)
+        ret.scatter_(1, 1-label_rep, hm)
+        return ret
+
+
+    def forward(self,x,brch,label):
         embeddings = self.embeddings(x)       
         outputs, hidden_state = self.lstm(embeddings.view(self.batch_size,self.max_len,-1),self.init_hidden())  
 
-        feats = self.conv2(outputs.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
-        # GAP
-        feats = feats.squeeze().transpose(1,2)
-        self.heatmaps = self.linear_final(feats).transpose(1,2)
-        # linear # softmax
-        pred = F.log_softmax(torch.mean(self.heatmaps,dim=2).squeeze())
+        # branches
+        self.heatmaps = []
+        for i in range(self.numBrch):
+            feats = self.conv[i](outputs.unsqueeze(1)).squeeze().transpose(1,2) #torch.Size([512, 2, 200, 1])
+            self.heatmaps.append(self.linear[i](feats).transpose(1,2))
 
-        # attention is obtained from output of conv2
+        # brch output
+        pred = F.log_softmax(torch.mean(self.heatmaps[brch],dim=2).squeeze())
+        # masked brch output
+        msk_pred = F.log_softmax(torch.mean(self.maskHeatmaps(self.heatmaps[brch], self.heatmaps[1-brch].detach()),dim=2).squeeze())
+        # other brch output for adv
+        adv_pred = F.log_softmax(torch.mean(self.maskHeatmaps(self.heatmaps[1-brch].detach(), self.heatmaps[brch]),dim=2).squeeze())
 
-
-        # x = F.tanh(self.linear_first(outputs))       
-        # x = self.linear_second(x)       
-        # x = self.softmax(x,1)       
-        # attention = x.transpose(1,2)       
-        # sentence_embeddings = attention@outputs       
-        # avg_sentence_embeddings = torch.sum(sentence_embeddings,1)/self.r
-        # if not bool(self.type):
-        #     output = F.sigmoid(self.linear_final(logits))#(avg_sentence_embeddings))
-           
-        #     return output,attention
-        # else:
-        return pred#,attention
+        return pred, msk_pred, adv_pred
        
 	   
 	#Regularization
