@@ -128,7 +128,7 @@ class StructuredSelfAttention(torch.nn.Module):
         return ret
 
 
-    def forward(self,x,brch,label):
+    def forward(self,x,brch=None,label=None):
         embeddings = self.embeddings(x)       
         outputs, hidden_state = self.lstm(embeddings.view(self.batch_size,self.max_len,-1),self.init_hidden())  
 
@@ -138,14 +138,17 @@ class StructuredSelfAttention(torch.nn.Module):
             feats = self.conv[i](outputs.unsqueeze(1)).squeeze().transpose(1,2) #torch.Size([512, 2, 200, 1])
             self.heatmaps.append(self.linear[i](feats).transpose(1,2))
 
-        # brch output
-        pred = F.log_softmax(torch.mean(self.heatmaps[brch],dim=2).squeeze())
-        # masked brch output
-        msk_pred = F.log_softmax(torch.mean(self.maskHeatmaps(self.heatmaps[brch], self.heatmaps[1-brch].detach(), label),dim=2).squeeze())
-        # other brch output for adv
-        adv_pred = F.log_softmax(torch.mean(self.maskHeatmaps(self.heatmaps[1-brch].detach(), self.heatmaps[brch], label),dim=2).squeeze())
+        if brch is not None:
+            # brch output
+            pred = F.log_softmax(torch.mean(self.heatmaps[brch],dim=2).squeeze())
+            # masked brch output
+            msk_pred = F.log_softmax(torch.mean(self.maskHeatmaps(self.heatmaps[brch], self.heatmaps[1-brch].detach(), label),dim=2).squeeze())
+            # other brch output for adv
+            adv_pred = F.log_softmax(torch.mean(self.maskHeatmaps(self.heatmaps[1-brch].detach(), self.heatmaps[brch], label),dim=2).squeeze())
 
-        return pred, msk_pred, adv_pred
+            return pred, msk_pred, adv_pred
+        else:
+            return F.log_softmax(torch.mean(self.heatmaps[0],dim=2).squeeze())
        
 	   
 	#Regularization
