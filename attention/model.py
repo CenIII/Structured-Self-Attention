@@ -117,7 +117,7 @@ class StructuredSelfAttention(torch.nn.Module):
         att = att/2
         return att
 
-    def maskHeatmaps(hm, hm_sub, label): # hm [512,2,200]
+    def maskHeatmaps(self, hm, hm_sub, label): # hm [512,2,200]
         label_rep = label.unsqueeze(1).unsqueeze(1).repeat(1,1,hm.shape[2])
         heatmap = torch.gather(hm,1,label_rep).squeeze() #[512,200]
         att_sub = 1 - F.softmax(torch.gather(hm_sub,1,label_rep).squeeze(),dim=1) #[512,200]
