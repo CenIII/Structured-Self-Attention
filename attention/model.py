@@ -122,15 +122,12 @@ class StructuredSelfAttention(torch.nn.Module):
         embeddings = self.embeddings(x)       
         outputs, hidden_state = self.lstm(embeddings.view(self.batch_size,self.max_len,-1),self.init_hidden())  
 
-        # add conv here
-        # conv1
-        # feats = self.relu(self.conv1(outputs.unsqueeze(1)))
-        # conv2
-        self.heatmaps = self.conv2(outputs.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
+        feats = self.conv2(outputs.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
         # GAP
-        logits = self.heatmaps
+        feats = feats.squeeze().transpose(1,2)
+        self.heatmaps = self.linear_final(feats)
         # linear # softmax
-        pred = F.log_softmax(torch.mean(self.linear_final(logits),dim=2).squeeze())
+        pred = F.log_softmax(torch.mean(self.heatmaps,dim=1).squeeze())
 
         # attention is obtained from output of conv2
 
