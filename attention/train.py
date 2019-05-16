@@ -87,7 +87,7 @@ def train(attention_model,train_loader,criterion,optimizer1,optimizer2,x_test, y
             optimizer2.step()
 
             qdar.set_postfix(ls1p=lstr(loss1_pred), ls1msk=lstr(loss1_msk), ls1adv=lstr(loss1_adv), 
-                                ls2p=lstr(loss2_pred), ls2msk=lstr(loss2_msk), ls1adv=lstr(loss2_adv))
+                                ls2p=lstr(loss2_pred), ls2msk=lstr(loss2_msk), ls2adv=lstr(loss2_adv))
             n_batches+=1
         cur_acc = correct.type(device.FloatTensor)/(2*n_batches*train_loader.batch_size)
         print("avg_loss is",total_loss/(2*n_batches))
