@@ -123,7 +123,7 @@ class StructuredSelfAttention(torch.nn.Module):
         att_sub = 1 - F.softmax(torch.gather(hm_sub,1,label_rep).squeeze(),dim=1) #[512,200]
         heatmap_msked = heatmap*att_sub
         ret = Variable(torch.zeros_like(hm)).cuda()
-        ret.scatter_(1, label_rep, heatmap_msked)
+        ret.scatter_(1, label_rep, heatmap_msked.unsqueeze(1).repeat(1,2,1))
         ret.scatter_(1, 1-label_rep, hm)
         return ret
 
