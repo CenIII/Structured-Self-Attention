@@ -128,9 +128,9 @@ class StructuredSelfAttention(torch.nn.Module):
         # conv2
         self.heatmaps = self.conv2(outputs.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
         # GAP
-        logits = torch.mean(self.heatmaps,dim=2).squeeze()
+        logits = self.heatmaps
         # linear # softmax
-        pred = F.log_softmax(self.linear_final(logits))
+        pred = F.log_softmax(torch.mean(self.linear_final(logits),dim=2).squeeze())
 
         # attention is obtained from output of conv2
 
