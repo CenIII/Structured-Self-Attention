@@ -117,7 +117,7 @@ class StructuredSelfAttention(torch.nn.Module):
         # wts = self.linear_final.weight.data[classid.type(device.LongTensor)]
         # att = torch.bmm(wts.unsqueeze(1),self.heatmaps.squeeze()).squeeze() #torch.Size([512, 200])
         hm = torch.gather(self.heatmaps,1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps.shape[2]).type(device.LongTensor)).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
-        mask = torch.max(att,dim=1)[0]>20.
+        mask = torch.max(hm,dim=1)[0]>20.
         accm = None
         while torch.sum(mask)>0:
             tmp_att = F.softmax(hm,dim=1)*mask
