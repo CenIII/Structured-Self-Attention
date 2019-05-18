@@ -120,7 +120,7 @@ class StructuredSelfAttention(torch.nn.Module):
         mask = torch.max(att,dim=1)[0]>20.
         accm = None
         while torch.sum(mask)>0:
-            tmp_att = F.softmax(att,dim=1)*mask
+            tmp_att = F.softmax(hm,dim=1)*mask
             if accm is None:
                 accm = tmp_att
             else:
