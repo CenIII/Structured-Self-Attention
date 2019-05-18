@@ -116,7 +116,8 @@ class StructuredSelfAttention(torch.nn.Module):
     def getAttention(self,classid):
         # wts = self.linear_final.weight.data[classid.type(device.LongTensor)]
         # att = torch.bmm(wts.unsqueeze(1),self.heatmaps.squeeze()).squeeze() #torch.Size([512, 200])
-        att = torch.gather(self.heatmaps,1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps.shape[2])).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
+        att = torch.gather(self.heatmaps,1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps.shape[2]).type(device.LongTensor)).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
+        pass
         return att
 
     def forward(self,x):

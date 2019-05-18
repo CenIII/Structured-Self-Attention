@@ -48,7 +48,7 @@ print("Using model settings",model_params)
  
 def visualize_attention(wts,x_test_pad,word_to_id,filename):
     #wts_add = torch.sum(wts,1)
-    wts = F.softmax(wts,dim=1)
+    #wts[wts<15.] = 0 #F.softmax(wts,dim=1)
     wts_add_np = wts.cpu().data.numpy()
     wts_add_list = wts_add_np.tolist()
     id_to_word = {v:k for k,v in word_to_id.items()}
