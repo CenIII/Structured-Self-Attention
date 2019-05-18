@@ -117,7 +117,7 @@ class StructuredSelfAttention(torch.nn.Module):
         # wts = self.linear_final.weight.data[classid.type(device.LongTensor)]
         # att = torch.bmm(wts.unsqueeze(1),self.heatmaps.squeeze()).squeeze() #torch.Size([512, 200])
         hm = torch.gather(self.heatmaps,1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps.shape[2]).type(device.LongTensor)).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
-        mask = torch.max(hm,dim=1)[0]>20.
+        mask = (torch.max(hm,dim=1)[0]>20.).unsqueeze(1).type(device.FloatTensor)
         accm = None
         while torch.sum(mask)>0:
             tmp_att = F.softmax(hm,dim=1)*mask
@@ -126,7 +126,7 @@ class StructuredSelfAttention(torch.nn.Module):
             else:
                 accm += tmp_att
             hm = hm*(1-tmp_att)
-            mask = torch.max(hm,dim=1)[0]>20.
+            mask = (torch.max(hm,dim=1)[0]>20.).unsqueeze(1).type(device.FloatTensor)
         return accm
 
     def forward(self,x):
