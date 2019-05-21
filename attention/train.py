@@ -48,7 +48,7 @@ def train(attention_model,train_loader,criterion,optimizer,x_test, y_test, epoch
             x,y = Variable(train[0]),Variable(train[1])
             if torch.cuda.is_available():
                 x,y = x.cuda(), y.cuda()
-            y_pred = attention_model(x)
+            y_pred, y_pred_2 = attention_model(x)
             att = attention_model.getAttention(y)
             #penalization AAT - I
             if use_regularization:
@@ -78,8 +78,9 @@ def train(attention_model,train_loader,criterion,optimizer,x_test, y_test, epoch
 #                         raise Exception("BCELoss gets nan values on regularization. Either remove regularization or add very small values")
                 # else:
                     # loss = criterion(y_pred.type(device.DoubleTensor).squeeze(1),y)
-                loss = criterion(y_pred,y.type(device.LongTensor))
-                
+                loss1 = criterion(y_pred,y.type(device.LongTensor))
+                loss2 = criterion(y_pred_2,y.type(device.LongTensor))
+                loss = loss1+loss2
             
             else:
                 
@@ -89,7 +90,7 @@ def train(attention_model,train_loader,criterion,optimizer,x_test, y_test, epoch
                 else:
                     loss = criterion(y_pred,y)
                
-            qdar.set_postfix(loss=str(np.round(loss.data.item(),3)))
+            qdar.set_postfix(loss1=str(np.round(loss1.data.item(),3)),loss2=str(np.round(loss2.data.item(),3)))
 
             total_loss+=loss.data
             optimizer.zero_grad()
