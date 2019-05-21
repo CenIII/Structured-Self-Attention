@@ -127,7 +127,7 @@ class StructuredSelfAttention(torch.nn.Module):
         #     hm = hm*(1-tmp_att)
         #     mask = (torch.max(hm,dim=1)[0]>20.).unsqueeze(1).type(device.FloatTensor)
 
-        return accm
+        return hm
 
     def forward(self,x):
         embeddings = self.embeddings(x)       
