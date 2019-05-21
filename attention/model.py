@@ -144,7 +144,7 @@ class StructuredSelfAttention(torch.nn.Module):
             return pred
         else:
             prob = F.tanh(self.getAttention(label)).detach()
-            leftover = (1-(prob>0.8).type(device.FloatTensor)*prob).unsqueeze(2)
+            leftover = (1-(prob>0.7).type(device.FloatTensor)*prob).unsqueeze(2)
             outputs2 = outputs*leftover
 
             feats2 = self.conv2(outputs2.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
