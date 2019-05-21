@@ -56,8 +56,7 @@ class StructuredSelfAttention(torch.nn.Module):
         self.r = r
         self.type = type
 
-        self.conv1 = nn.Conv2d(1, 2, (1, 1))#, padding=(1,0))
-        self.relu = nn.ReLU()
+        # self.conv1 = nn.Conv2d(1, 2, (1, 1))#, padding=(1,0))
         self.conv2 = nn.Conv2d(1, 2, (1, 100))#, padding=(1,0))
 
         # before classification, two branch nets erase each other. 
@@ -117,16 +116,17 @@ class StructuredSelfAttention(torch.nn.Module):
         # wts = self.linear_final.weight.data[classid.type(device.LongTensor)]
         # att = torch.bmm(wts.unsqueeze(1),self.heatmaps.squeeze()).squeeze() #torch.Size([512, 200])
         hm = torch.gather(self.heatmaps,1,classid.unsqueeze(1).unsqueeze(1).repeat(1,1,self.heatmaps.shape[2]).type(device.LongTensor)).squeeze()#self.heatmaps[:,classid.type(device.LongTensor)]
-        mask = (torch.max(hm,dim=1)[0]>20.).unsqueeze(1).type(device.FloatTensor)
-        accm = None
-        while torch.sum(mask)>0:
-            tmp_att = F.softmax(hm,dim=1)*mask
-            if accm is None:
-                accm = tmp_att
-            else:
-                accm += tmp_att
-            hm = hm*(1-tmp_att)
-            mask = (torch.max(hm,dim=1)[0]>20.).unsqueeze(1).type(device.FloatTensor)
+        # mask = (torch.max(hm,dim=1)[0]>20.).unsqueeze(1).type(device.FloatTensor)
+        # accm = None
+        # while torch.sum(mask)>0:
+        #     tmp_att = F.softmax(hm,dim=1)*mask
+        #     if accm is None:
+        #         accm = tmp_att
+        #     else:
+        #         accm += tmp_att
+        #     hm = hm*(1-tmp_att)
+        #     mask = (torch.max(hm,dim=1)[0]>20.).unsqueeze(1).type(device.FloatTensor)
+
         return accm
 
     def forward(self,x):
@@ -138,7 +138,7 @@ class StructuredSelfAttention(torch.nn.Module):
         feats = feats.squeeze().transpose(1,2)
         self.heatmaps = self.linear_final(feats).transpose(1,2)
         # linear # softmax
-        pred = F.log_softmax(torch.mean(self.heatmaps,dim=2).squeeze())
+        pred = F.log_softmax(torch.max(self.heatmaps,dim=2)[0].squeeze())
 
         # attention is obtained from output of conv2
 
