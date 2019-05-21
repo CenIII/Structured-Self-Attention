@@ -143,7 +143,7 @@ class StructuredSelfAttention(torch.nn.Module):
         if label is None:
             return pred
         else:
-            leftover = 1-F.tanh(self.getAttention(label)).detach()
+            leftover = (1-F.tanh(self.getAttention(label)).detach()).unsqueeze(2)
             outputs2 = outputs*leftover
 
             feats2 = self.conv2(outputs2.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
