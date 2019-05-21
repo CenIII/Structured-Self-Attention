@@ -129,7 +129,7 @@ class StructuredSelfAttention(torch.nn.Module):
 
         return hm
 
-    def forward(self,x,label):
+    def forward(self,x,label=None):
         embeddings = self.embeddings(x)       
         outputs, hidden_state = self.lstm(embeddings.view(self.batch_size,self.max_len,-1),self.init_hidden())  
 
@@ -140,30 +140,33 @@ class StructuredSelfAttention(torch.nn.Module):
         # linear # softmax
         pred = F.log_softmax(torch.max(self.heatmaps,dim=2)[0].squeeze())
 
-        leftover = 1-F.tanh(self.getAttention(label)).detach()
-        outputs2 = outputs*leftover
+        if label is None:
+            return pred
+        else:
+            leftover = 1-F.tanh(self.getAttention(label)).detach()
+            outputs2 = outputs*leftover
 
-        feats2 = self.conv2(outputs2.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
-        # GAP
-        feats2 = feats2.squeeze().transpose(1,2)
-        heatmaps2 = self.linear_final(feats2).transpose(1,2)
-        # linear # softmax
-        pred2 = F.log_softmax(torch.max(heatmaps2,dim=2)[0].squeeze())
+            feats2 = self.conv2(outputs2.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
+            # GAP
+            feats2 = feats2.squeeze().transpose(1,2)
+            heatmaps2 = self.linear_final(feats2).transpose(1,2)
+            # linear # softmax
+            pred2 = F.log_softmax(torch.max(heatmaps2,dim=2)[0].squeeze())
 
 
 
-        # x = F.tanh(self.linear_first(outputs))       
-        # x = self.linear_second(x)       
-        # x = self.softmax(x,1)       
-        # attention = x.transpose(1,2)       
-        # sentence_embeddings = attention@outputs       
-        # avg_sentence_embeddings = torch.sum(sentence_embeddings,1)/self.r
-        # if not bool(self.type):
-        #     output = F.sigmoid(self.linear_final(logits))#(avg_sentence_embeddings))
-           
-        #     return output,attention
-        # else:
-        return pred,pred2#,attention
+            # x = F.tanh(self.linear_first(outputs))       
+            # x = self.linear_second(x)       
+            # x = self.softmax(x,1)       
+            # attention = x.transpose(1,2)       
+            # sentence_embeddings = attention@outputs       
+            # avg_sentence_embeddings = torch.sum(sentence_embeddings,1)/self.r
+            # if not bool(self.type):
+            #     output = F.sigmoid(self.linear_final(logits))#(avg_sentence_embeddings))
+               
+            #     return output,attention
+            # else:
+            return pred,pred2#,attention
        
 	   
 	#Regularization

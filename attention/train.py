@@ -48,7 +48,7 @@ def train(attention_model,train_loader,criterion,optimizer,x_test, y_test, epoch
             x,y = Variable(train[0]),Variable(train[1])
             if torch.cuda.is_available():
                 x,y = x.cuda(), y.cuda()
-            y_pred, y_pred_2 = attention_model(x)
+            y_pred, y_pred_2 = attention_model(x,y)
             att = attention_model.getAttention(y)
             #penalization AAT - I
             if use_regularization:
