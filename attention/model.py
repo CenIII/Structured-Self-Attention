@@ -48,7 +48,7 @@ class StructuredSelfAttention(torch.nn.Module):
         # self.linear_second = torch.nn.Linear(d_a,r)
         # self.linear_second.bias.data.fill_(0)
         self.n_classes = n_classes
-        self.linear_final = torch.nn.Linear(2,2)#(lstm_hid_dim,self.n_classes)
+        self.linear_final = torch.nn.Linear(20,2)#(lstm_hid_dim,self.n_classes)
         self.batch_size = batch_size       
         self.max_len = max_len
         self.lstm_hid_dim = lstm_hid_dim
@@ -58,7 +58,7 @@ class StructuredSelfAttention(torch.nn.Module):
 
         self.conv1 = nn.Conv2d(1, 2, (1, 1))#, padding=(1,0))
         self.relu = nn.ReLU()
-        self.conv2 = nn.Conv2d(1, 2, (1, 100))#, padding=(1,0))
+        self.conv2 = nn.Conv2d(1, 20, (1, 100))#, padding=(1,0))
 
         # before classification, two branch nets erase each other. 
 
@@ -136,7 +136,7 @@ class StructuredSelfAttention(torch.nn.Module):
         feats = self.conv2(outputs.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
         # GAP
         feats = feats.squeeze().transpose(1,2)
-        self.heatmaps = torch.tanh(self.relu(self.linear_final(feats).transpose(1,2)))
+        self.heatmaps = 15*torch.tanh(self.relu(self.linear_final(feats).transpose(1,2)))
         # linear # softmax
         pred = F.log_softmax(torch.mean(self.heatmaps,dim=2).squeeze())
 
