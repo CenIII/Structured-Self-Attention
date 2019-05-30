@@ -136,7 +136,7 @@ class StructuredSelfAttention(torch.nn.Module):
         feats = self.conv2(outputs.unsqueeze(1)) #torch.Size([512, 2, 200, 1])
         # GAP
         feats = feats.squeeze().transpose(1,2)
-        self.heatmaps = 15*torch.tanh(self.relu(self.linear_final(feats).transpose(1,2)))
+        self.heatmaps = torch.sqrt(self.relu(self.linear_final(feats).transpose(1,2)))
         # linear # softmax
         pred = F.log_softmax(torch.mean(self.heatmaps,dim=2).squeeze())
 
